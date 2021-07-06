@@ -1,7 +1,7 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-01 17:42:11
- * @LastEditTime: 2021-07-02 18:48:11
+ * @LastEditTime: 2021-07-06 19:01:01
  * @FilePath: \TypeScript\README.md
  * @Description: 
 -->
@@ -175,3 +175,153 @@
         - ```js
             s = <string>e;
             ```
+
+### 编译选项
+- 当前文件自动编译：
+    - 编译文件时，使用 `-w` 指令后，TS编译器会自动见识文件的变化，并在文件发生变化时对文件进行重新编译
+    - `tsc xxx.ts -w`
+- 批量自动编译
+    - 如果直接使用`tsc`指令，则可以自动将当前的所有ts文件编译为js文件。
+    - 但是能直接使用tsc命令的前提时，要先在目录下创建一个ts的配置文件 `tsconfig.json`
+    - tsconfig.json 是一个JSON文件，添加配置文件后，只需tsc命令即可完成对整个项目的编译
+    - 配置选项：
+        - include
+            - 定义希望被编译文件所在的目录
+            - 默认值： ["**/*"]
+            - 示例：`"include": ["./src/**/*","./tests/**/*"],` 即表示，所有src目录和tests目录下的文件都会被编译
+        - exclude
+            - 定义需要排除在外的目录
+            - 默认值：["node_modules", "bower_components", "jspm_package"]
+            - 示例：`"exclude": ["./src/hello/**/*"]`即表示，src目录下的hello目录下的文件都不会被编译
+        - extends
+            - 定义被继承的配置文件
+            - 示例：`"entends": "./config/base"`即表示，当前配置文件中会自动包含config目录下base.json中的所有配置信息
+        - files
+            - 指定被编译的文件的列表，只有需要编译文件少时才会用到
+            - 示例： `"files": ["core.ts", "sys.ts"]`
+        - compilerOptions
+            - 编译选项是配置文件中非常重要也比较复杂的配置选择
+            - target
+                - 设置ts代码编译的目标版本
+                - 可选值： ES3(默认)、ES5、ES6/ES2015、ES7/ES2016、ES2017、ES2018、ES2019、ES2020、ESNext
+                - 示例： `compilerOptions: {"target": "ES6"}`
+            - lib（一般不改）
+                - 指定代码运行时所包含的库（宿主环境）
+                - 可选值：ES5、ES6/ES2015、ES7/ES2016、ES2017、ES2018、ES2019、ES2020、ESNext、DOM、WebWorker、ScriptHost......
+            - module
+                - 指定要使用的模块化的规范
+                - 可选值：CommonJS、UMD、AMD、System、ES2020、ESNext、None
+            - outDir
+                - 用来指定编译后文件所在的目录
+                - 示例：`outDir: "./dist"`
+            - outFile
+                - 所有的去怒作用域中的代码会合并到同一个文件中
+                - 示例：`outFile: "./dist/app.js"`
+            - allowJS
+                - 是否对js文件进行编译，默认是false
+            - checkJS
+                - 是否检查js代码是否符合语法规范，默认是false
+            - removeComments
+                - 是否移除注释
+            - noEmit
+                - 不生成编译后的文件
+            - noEmitOnError
+                - 当有错误时不生成编译后的文件
+            - alwayStrict
+                - 用来设置编译后的文件是否使用严格模式，默认false
+                - 当有引入模块的时候，js会自动进入到严格模式
+            - noImplicitAny
+                - 不允许隐私的any类型
+            - noImplicitThis
+                - 不允许不明确类型的this
+            - strictNullChecks
+                - 严格的检测空值
+                - 示例：`box?.addEventLister('click',function(){})`box可能是个null
+            - strict
+                - 所以严格检查的总开关
+    - ```json
+        {
+        "include": [       //配置些TS文件需要被编译，这里是根目录/src/任意目录/任意文件
+            "./src/**/*"
+        ],
+        "exclude": [],     //不包含哪些文件
+        "files": [],       //和include很像，只不过include列出路径，files直接一一列出文件
+        "compilerOptions":{ //编译器配置选项
+            "target": "es5",           //target用来指定ts被编译为ES版本，默认ES3 
+            "module": "commonjs",      //module指定模块化的规范
+            "lib": [],                                  
+            //lib用来指定项目中要使用的库，使用场景一般在非浏览器环境下运行，比如在nodejs下我要使用dom，"lib": ["dom"]
+            "outDir": "./",            //outDir指定编译后文件所在的目录 "outDir": "./dist", 存于个目录下dist文件夹
+            "outFile":"./dist/app.js", //outFile 将代码合并为一个文件，但其实项目开发更多让打包工具去做这个事
+            "allowJs": false,          //是否对js文件进行编译，默认false
+            "checkJs": false,          //检查js文件符合语法规范，一般和allowJs配套使用
+            "removeComments": false,   //是否移除备注
+            "noEmitOnError": false,    //当有错误时不生成编译后的文件
+            "strict":false,            //所有严格检查总开关
+            "alwaysStrict": true,      //设置编译后JS文件是否使用严格模式，默认false
+            "noImplicitAny": false,    //不允许隐式any类型
+            "noImplicitThis": false,   //不允许不明确类型this
+            "strictNullChecks": false, //严格检查空值（或者可能成为空值的变量）
+        }
+    }
+    ```
+
+### 结合webpack
+- 通常情况下，实际开发中我们都需要使用构建工具对代码进行打包，TS同样也可以结合构建工具一起使用，下边已webpack为例介绍一下如何结合构建工具使用TS
+1. 初始化项目
+    - 执行命令 `npm init -y`
+    - 作用：创建一个packpage.json文件
+2. 下载构建工具
+    - 安装开发依赖 `npm i -D webpack webpack-cli webpack-dev-server typescript ts-loader clean-webpack-plugin`
+    - webpack: 构建工具webpack
+    - webpack-cli: webpack的命令行工具
+    - webpack-dev-server: webpack的开发服务器
+    - typescript: ts编译器
+    - ts-loader: 用于webpack的TypeScript加载器
+    - clean-webpack-plugin：用于删除/清理您的构建文件夹
+3. 创建webpack的配置文件
+    - 根目录创建 `webpack.config.js`文件
+    - ```js
+        // 引入一个包
+        const path = require(path);
+
+        // webpack中的所有的配置信息都应该写在module.exports中
+        module.exports = {
+            // 入口文件
+            entry: "./src/index.ts",
+            // 指定打包文件所在目录
+            output: {
+                // 指定打包后的目录
+                path: path.resolve(__dirname, 'dist'), // 等同 "./dist"
+                filename: "bundle.js"
+            },
+            // 指定webpack打包时要使用的模块
+            module: {
+                // 指定要加载的规则
+                rules: [
+                    {
+                        // test指定的是规则生效的文件-- 用ts-loader去处理以ts结尾的文件
+                        test: /\.ts$/,
+                        // 要使用的loader
+                        use: 'ts-loader',
+                        exclude: /node_modules/
+                    }
+                ]
+            }
+
+        }
+      ```
+4. 创建ts的配置文件
+    - 根目录创建 `tsconfig.json` 文件
+    - ```js
+        {
+        "compilerOptions": {
+            "module": "ES2015",
+            "target": "ES2015",
+            "strict": true
+        }
+    }
+    ```
+5. 打包文件
+    - 在`package.json`文件中scripts中加入`build："webpack"`
+    - 执行命令：`npm run build`
