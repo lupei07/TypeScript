@@ -1,11 +1,11 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-01 17:42:11
- * @LastEditTime: 2021-07-06 19:01:01
+ * @LastEditTime: 2021-07-07 14:56:44
  * @FilePath: \TypeScript\README.md
  * @Description: 
 -->
-# TypeScript
+## TypeScript
 ### TypeScript是什么？
     - 以JavaScript为基础构造的语言，一个JavaScript的超集，可以在任何支持JavaScript的平台中执行，TypeScript扩展了JavaScript，并添加了类型，但是不能被JS解析器直接执行，需要编程成js在访问
 
@@ -225,20 +225,24 @@
                 - 是否移除注释
             - noEmit
                 - 不生成编译后的文件
-            - noEmitOnError
-                - 当有错误时不生成编译后的文件
-            - alwayStrict
-                - 用来设置编译后的文件是否使用严格模式，默认false
-                - 当有引入模块的时候，js会自动进入到严格模式
-            - noImplicitAny
-                - 不允许隐私的any类型
-            - noImplicitThis
-                - 不允许不明确类型的this
-            - strictNullChecks
-                - 严格的检测空值
-                - 示例：`box?.addEventLister('click',function(){})`box可能是个null
-            - strict
-                - 所以严格检查的总开关
+            - sourceMap
+                - 是否生成sourceMap，默认是false
+            - 严格检查
+                - strict
+                    - 所以严格检查的总开关，启用所有的严格检查，默认值为true，设置后相当于开启了所有的严格检查
+                - noEmitOnError
+                    - 当有错误时不生成编译后的文件
+                - alwayStrict
+                    - 用来设置编译后的文件是否使用严格模式，默认false
+                    - 当有引入模块的时候，js会自动进入到严格模式
+                - noImplicitAny
+                    - 不允许隐私的any类型
+                - noImplicitThis
+                    - 不允许不明确类型的this
+                - strictNullChecks
+                    - 严格的检测空值
+                    - 示例：`box?.addEventLister('click',function(){})`box可能是个null
+            
     - ```json
         {
         "include": [       //配置些TS文件需要被编译，这里是根目录/src/任意目录/任意文件
@@ -272,13 +276,14 @@
     - 执行命令 `npm init -y`
     - 作用：创建一个packpage.json文件
 2. 下载构建工具
-    - 安装开发依赖 `npm i -D webpack webpack-cli webpack-dev-server typescript ts-loader clean-webpack-plugin`
+    - 安装开发依赖 `npm i -D webpack webpack-cli webpack-dev-server typescript ts-loader clean-webpack-plugin html-webpack-plugin`
     - webpack: 构建工具webpack
     - webpack-cli: webpack的命令行工具
+    - html-webpack-plugin: webpack中html插件，用来自动创建html文件
     - webpack-dev-server: webpack的开发服务器
     - typescript: ts编译器
     - ts-loader: 用于webpack的TypeScript加载器
-    - clean-webpack-plugin：用于删除/清理您的构建文件夹
+    - clean-webpack-plugin：用于删除/清理您的构建文件夹（webpack中的清除插件，每次构建都会先清除目录）
 3. 创建webpack的配置文件
     - 根目录创建 `webpack.config.js`文件
     - ```js
@@ -293,7 +298,11 @@
             output: {
                 // 指定打包后的目录
                 path: path.resolve(__dirname, 'dist'), // 等同 "./dist"
-                filename: "bundle.js"
+                filename: "bundle.js",
+                // 告诉webpack不实用箭头函数
+                environment: {
+                    arrowFunction: false
+                }
             },
             // 指定webpack打包时要使用的模块
             module: {
@@ -303,7 +312,40 @@
                         // test指定的是规则生效的文件-- 用ts-loader去处理以ts结尾的文件
                         test: /\.ts$/,
                         // 要使用的loader
-                        use: 'ts-loader',
+                        // use: 'ts-loader',
+                        use: [
+                        // 配置babel
+                        {
+                            // 指定加载器
+                            loader: "babel-loader",
+                            // 设置babel
+                            options: {
+                                // 设置预定义的环境
+                                presets: [
+                                    [
+                                        // 指定环境的插件
+                                        "@babel/preset-env",
+                                        // 配置信息
+                                        {
+                                            // 要兼容的目标浏览器
+                                            "targets": {
+                                                "chrome": "58",
+                                                "ie": "11"
+                                            },
+                                            // 指定corejs的版本
+                                            "corejs": "3",
+                                            // 使用corejs的方式 usage 表示按需加载
+                                            "useBuiltIns": "usage"
+                                        }
+                                    ]
+                                ]
+                            }
+                        },
+                        {
+                            loader: "ts-loader",
+
+                        }
+                    ],
                         exclude: /node_modules/
                     }
                 ]
@@ -313,7 +355,7 @@
       ```
 4. 创建ts的配置文件
     - 根目录创建 `tsconfig.json` 文件
-    - ```js
+    - ```json
         {
         "compilerOptions": {
             "module": "ES2015",
@@ -322,6 +364,98 @@
         }
     }
     ```
-5. 打包文件
+5. 修改package.json配置
+    - ```json
+        {
+        "scripts": {
+            "test": "echo \"Error: no test specified\" && exit 1",
+            "build": "webpack",
+            "start": "webpack serve --open chrome.exe"
+        },
+        }
+
+        ```
+6. 自动创建html文件（html-webpack-plugin）
+    - ```js
+        // 引入html插件
+        const HTMLWebpackPlugin = require('html-webpack-plugin');
+        // 配置webpack插件
+        plugins: [
+            new HTMLWebpackPlugin({
+                title: '这是一个自定义的title', // 默认html指定title
+                template: "./src/index.html" //指定模板
+            }),
+        ]
+        ```
+7. webpack的开发服务器
+    - 执行命令 `npm i -D webpack-dev-server`
+    - 项目改变自动刷新
+8. 打包文件
     - 在`package.json`文件中scripts中加入`build："webpack"`
     - 执行命令：`npm run build`
+    - 执行`npm start`来启动开发服务器
+
+### Babel
+- 经过一系列的配置，使得TS和webpack已经结合到了一起，除了webpack，开发中还经常需要结合babel来对代码进行转换以使其可以兼容到更多的浏览器，在上述步骤的基础上，通过以下步骤再将babel引入到项目中。
+
+1. 安装依赖包：
+     - ```npm i -D @babel/core @babel/preset-env babel-loader core-js```
+     - 共安装了4个包，分别是：
+       - @babel/core
+         - babel的核心工具
+       - @babel/preset-env
+         - babel的预定义环境
+       - @babel-loader
+         - babel在webpack中的加载器
+       - core-js
+         - core-js用来使老版本的浏览器支持新版ES语法
+
+  2. 修改webpack.config.js配置文件
+
+     - ```javascript
+       ...略...
+       module: {
+           rules: [
+               {
+                   test: /\.ts$/,
+                   use: [
+                    // 配置babel
+                    {
+                        // 指定加载器
+                        loader: "babel-loader",
+                        // 设置babel
+                        options: {
+                            // 设置预定义的环境
+                            presets: [
+                                [
+                                    // 指定环境的插件
+                                    "@babel/preset-env",
+                                    // 配置信息
+                                    {
+                                        // 要兼容的目标浏览器
+                                        "targets": {
+                                            "chrome": "58",
+                                            "ie": "11"
+                                        },
+                                        // 指定corejs的版本
+                                        "corejs": "3",
+                                        // 使用corejs的方式 usage 表示按需加载
+                                        "useBuiltIns": "usage"
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        loader: "ts-loader",
+
+                    }
+                ],
+                   exclude: /node_modules/
+               }
+           ]
+       }
+       ...略...
+       ```
+
+     - 如此一来，使用ts编译后的文件将会再次被babel处理，使得代码可以在大部分浏览器中直接使用，可以在配置选项的targets中指定要兼容的浏览器版本。
