@@ -6,6 +6,8 @@ const HTMLWebpackPlugin = require('html-webpack-plugin');
 // 引入clean插件
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
+const isProd = process.env.NODE_ENV === 'production' // 是否生产环境
+
 // webpack中的所有的配置信息都应该写在module.exports中
 module.exports = {
     // 入口文件
@@ -95,7 +97,7 @@ module.exports = {
             }
         ]
     },
-    mode: "production",
+    mode: isProd ? "production" : "delelopment",
 
     // 配置webpack插件
     plugins: [
@@ -109,6 +111,13 @@ module.exports = {
     // 用来设置引入模块  以ts,js扩展名文件都可以作为模块使用
     resolve: {
         extensions: ['.ts', '.js']
+    },
+
+    devServer: {
+        host: "localhost",
+        stats: "errors-only",
+        port: 8081,
+        open: true
     }
 
 }
