@@ -1,7 +1,7 @@
 /*
  * @Author: lu
  * @Date: 2021-07-02 13:58:01
- * @LastEditTime: 2021-07-02 18:40:32
+ * @LastEditTime: 2021-07-14 16:19:34
  * @FilePath: \TypeScript\03_types.ts
  * @Description:
  */
@@ -22,6 +22,10 @@ c = 'hello';
 c = 10;
 c = true;
 
+
+// 当一个数组中要存储多个数据，个数不确定，类型不确定，此时也可以用any类型来定义数组
+let arr1: any[] = [10, '123']
+
 let d; // 隐式any
 d = 'h';
 
@@ -33,7 +37,7 @@ e = 'hello'
 let s: string;
 s = c; // any类型可污染其他变量类型
 // unknown 实际上就是一个类型安全的any
-// nuknown 类型的变量，不能直接赋值给其他变量
+// unknown 类型的变量，不能直接赋值给其他变量
 if (typeof e === "string") {
     s = e
 }
@@ -59,6 +63,12 @@ function fn2(): never {
 let f: object;
 f = {};
 f = function () { }
+// 联合类型，表示取值可以为多种类型中的一种
+// 定义一个函数得到一个数值火字符串值的字符串形式值
+function getString(str: number | string): string {
+    return str.toString();
+}
+console.log(getString("123"));
 
 // {} 用来指定对象中可以包含哪些属性
 // 语法： {属性名：属性值，属性名：属性值}
@@ -81,8 +91,8 @@ k = function (n1, n2): number {
 
 /**
  * 数组类型申明
- *  类型[]
- *  Array<> 
+ *  类型[] 
+ *  Array<>  泛型的写法
 */
 // string[] 表示字符串数组
 let m: string[];
@@ -102,6 +112,8 @@ p = ['hello', 123];
 
 /**
  * enum 枚举
+ *  枚举里面的每个数据值都可以叫元素，每个元素都有自己的编号，默认编号是从0开始的，一次的递增加1
+ *  枚举中的元素可以是中文的数据值，但是不推荐
 */
 enum Gender {
     Male = 1,
@@ -111,6 +123,7 @@ enum Gender {
 let q: { name: string, gender: Gender }
 q = { name: 'lily', gender: Gender.Female }
 console.log(q.gender === Gender.Female);
+console.log(Gender[0]); // Female
 
 
 // & 表示同时
@@ -121,3 +134,4 @@ r = { name: '123', age: 19 }
 type myType = 1 | 2 | 3 | 4;
 let t: myType;
 t = 2
+
