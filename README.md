@@ -154,7 +154,7 @@
 - enum 
     - ```js
         /**
-         * enum 枚举
+         * enum 枚举  一些固定的参数集合
         */
         enum Gender {
             Male = 1,
@@ -474,6 +474,11 @@
 在程序中所有的对象都被分成了两个部分数据和功能，以人为例，人的姓名、性别、年龄、身高、体重等属于数据，人可以说话、走路、吃饭、睡觉这些属于人的功能。数据在对象中被成为属性，而功能就被称为方法。所以简而言之，在程序中一切皆是对象。
 
 ## 1、类（class）
+> 1.1. 类的定义
+> 1.2. 继承
+> 1.3. 类里面的修饰符
+> 1.4. 静态属性 惊天方法
+> 1.5. 继承
 
 要想面向对象，操作对象，首先便要拥有对象，那么下一个问题就是如何创建对象。要创建对象，必须要先定义类，所谓的类可以理解为对象的模型，程序中可以根据类创建指定类型的对象，举例来说：可以通过Person类来创建人的对象，通过Dog类创建狗的对象，通过Car类来创建汽车的对象，不同的类可以用来创建不同的对象。
 
@@ -800,6 +805,7 @@
 - 抽象类（abstract class）
 
     - 抽象类是专门用来被其他类所继承的类，它只能被其他类所继承不能用来创建实例
+    - 用abstract关键字定义抽象类和抽象方法，抽象类中的抽象方法不包含具体实现并且必须在派生类中实现
     - 抽象类就是专门用来被继承的类
     - 抽象类中可以添加抽象方法
 
@@ -812,6 +818,7 @@
       }
       
       class Dog extends Animals{
+          // 抽象类的之类必须实现抽象类里面的抽象方法
           // 重新的实现抽象类中的方法，此时这个方法就是当前Dog类的实例方法了
           run(){
               console.log('狗在跑~');
@@ -960,6 +967,11 @@
 
 
 ## 3、接口（Interface）
+> 3.1. 属性类接口 
+> 3.2. 函数类型接口
+> 3.3. 可索引接口
+> 3.4. 类类型接口
+> 3.5. 接口扩展
 
 接口的作用类似于抽象类，不同点在于接口中的所有方法和属性都是没有实值的，换句话说接口中的所有方法都是抽象方法。接口主要负责定义一个类的结构，接口可以去限制一个对象的接口，对象只有包含接口中定义的所有属性和方法时才能匹配接口。同时，可以让一个类去实现接口，实现接口时类中要保护接口中的所有属性。
 
@@ -1155,6 +1167,204 @@
       ```
 
     - 使用T extends MyInter表示泛型T必须是MyInter的子类，不一定非要使用接口类和抽象类同样适用。
+
+## 装饰器
+- 装饰器：装饰器是一种特殊类型的声明，他能够被附加到类声明，方法，属性或者参数上，可以修改类的行为
+- 通俗的讲装饰器就是一个方法，可以注入到类、方法、属性参数上来扩展类、属性、方法、参数的功能。
+- 常见的装饰器有：类装饰器、属性装饰器、方法装饰器、参数装饰器
+- 装饰器的写法：普通装饰器（无法传参）、装饰器工厂（可以传参）
+    - 类装饰器（无法传参）
+        - 类装饰器在类声明之前被声明（紧靠着类声明）。类装饰器应用于类构造函数，可以用来监视，修改或者替换类定义。
+        ```ts
+        function logClass(params: any) {
+            // parama 就是当前类
+            console.log(params);
+            params.prototype.apiUrl = '动态扩展的属性';
+            params.prototype.run = function () {
+                console.log('我是一个run方法');
+            }
+        }
+
+        @logClass
+        class HttpClient {
+            constructor() {
+
+            }
+            getDate() { }
+        }
+        var http: any = new HttpClient();
+        http.run()
+        ```
+    - 装饰器工厂（可传参）
+    ```ts
+    function logClass(params: string) {
+
+        return function (target: any) {
+            // target 就是当前类
+            console.log('target', target);
+            console.log('parmas', params);
+        }
+    }
+
+    @logClass('hello')
+    class HttpClient {
+        constructor() {
+
+        }
+        getDate() { }
+    }
+    var http: any = new HttpClient();
+    ```
+    - 重载构造函数
+        - 类装饰器表达式会在运行时当做函数被调用，类的构造函数作为其唯一的参数
+        - 如果类装饰器返回一个值，它会使用提供的构造函数来替换类的声明
+    ```ts
+    function logClass(target: any) {
+
+        return class extends target {
+            apiUrl = '我是修改后的数据'
+            getData() {
+                console.log('this', this); //class_1 { apiUrl: '我是修改后的数据' }
+                this.apiUrl = this.apiUrl + '----'
+                console.log(this.apiUrl);
+            }
+        }
+    }
+
+    @logClass
+    class HttpClient {
+        public apiUrl: string
+        constructor() {
+            this.apiUrl = '我是构造函数里面的apiUrl'
+
+        }
+        getData() {
+            console.log(this.apiUrl);
+        }
+    }
+    var http: any = new HttpClient();
+    http.getData()
+    ```
+
+- 属性装饰器
+    - 属性装饰器表达式会在运行时当做函数被调用，传入下列2个参数：
+        - 1. 对于静态成员来说是类的构造函数，对于实例成员是类的原型对象
+        - 2. 成员的名字
+    ```ts
+    // 类装饰器
+    function logClass(params: any) {
+        return function (target) {
+            console.log(params);
+        }
+    }
+    // 属性装饰器
+    function logProperty(params: any) {
+        return function (target: any, attr: any) {
+            console.log(target);
+            console.log(attr);
+            target[attr] = params
+        }
+    }
+
+    @logClass('xxxx')
+    class HttpClient {
+        @logProperty('http://baidu.com')
+        public url: any
+        constructor() {
+
+        }
+        getData() {
+            console.log(this.url); //http://baidu.com
+        }
+    }
+    var http: any = new HttpClient();
+    http.getData()
+    ```
+
+- 方法装饰器
+    - 它会被应用到方法的 属性描述符上，可以用来监视，修改或者替换方法定义。
+    - 方法装饰器在运行时传入下列3个参数
+        - 1. 对于静态成员来说是类的构造函数，对于实例长远是类的原型对象。
+        - 2. 成员的名字
+        - 3. 成员的属性描述符
+    ```ts
+    function get(params: any) {
+        return function (target: any, methodName: any, desc: any) {
+            console.log(target);
+            console.log(methodName); // 
+            console.log(desc.value); // 类中被装饰的方法（getData）
+            target.apiUrl = params
+            target.run = function () {
+                console.log('我是方法装饰器里的run方法');
+            }
+            // 修改方法 把装饰器方法里面传入的所有参数改为string类型
+            // 1. 保存当前的方法
+            var oMethod = desc.value;
+            desc.value = function (...args: any[]) {
+                args = args.map((value) => {
+                    return String(value)
+                })
+                console.log('args', args); // [ '123', 'getdata' ]
+                oMethod.apply(this, args)
+            }
+
+
+        }
+    }
+
+    class HttpClient {
+        public url: any
+        constructor() {
+
+        }
+        @get('http://baidu.com')
+        getData(...args: any[]) {
+            console.log('类里面的参数', args); // [ '123', 'getdata' ]
+            console.log('我是getData里面的方法');
+        }
+    }
+    var http: any = new HttpClient();
+    console.log(http.apiUrl); // http://baidu.com
+    http.run() // 我是方法装饰器里的run方法
+
+
+    http.getData(123, 'getdata')
+    ```
+
+
+
+- 方法参数装饰器
+    - 参数装饰器表达式在运行时当作函数被调用，可以使用参数装饰器为类的原型增加一些元素数据，传入下列3个参数
+        - 1. 对于静态成员来说是类的构造函数，对于实例成员是类的原型对象
+        - 2. 方法的名字
+        - 3. 参数在函数参数离别中的索引
+    ```ts
+    function logParams(params: any) {
+        return function (target: any, methodName: any, paramsIndex: any) {
+            console.log(params);
+            console.log(target);
+            console.log(methodName);
+            console.log(paramsIndex);
+            target.apiUrl = params
+        }
+    }
+    class HttpClient {
+        public url: any
+        constructor() {
+
+        }
+        getData(@logParams('xxxxx') uuid: any) {
+            console.log(uuid);
+        }
+    }
+    var http: any = new HttpClient();
+    http.getData(123124)
+    console.log(http.apiUrl);
+    ```
+
+
+
+
 
 ## 练习
 - 样式的处理和配置

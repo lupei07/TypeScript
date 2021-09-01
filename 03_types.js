@@ -1,7 +1,7 @@
 /*
  * @Author: lu
  * @Date: 2021-07-02 13:58:01
- * @LastEditTime: 2021-07-02 18:03:31
+ * @LastEditTime: 2021-07-14 16:19:34
  * @FilePath: \TypeScript\03_types.ts
  * @Description:
  */
@@ -13,12 +13,14 @@ a = 10;
 var b;
 b = 'male';
 b = 'female';
-// b = 'hee' // 此行好搓
+// b = 'hee' // 此行报错
 // any 表示任意类型，一个变量设置类型any后相当于对该变量关闭了TS的类型检测
 var c;
 c = 'hello';
 c = 10;
 c = true;
+// 当一个数组中要存储多个数据，个数不确定，类型不确定，此时也可以用any类型来定义数组
+var arr1 = [10, '123'];
 var d; // 隐式any
 d = 'h';
 // unknown 表示未知类型的值
@@ -28,7 +30,7 @@ e = 'hello';
 var s;
 s = c; // any类型可污染其他变量类型
 // unknown 实际上就是一个类型安全的any
-// nuknown 类型的变量，不能直接赋值给其他变量
+// unknown 类型的变量，不能直接赋值给其他变量
 if (typeof e === "string") {
     s = e;
 }
@@ -51,6 +53,12 @@ function fn2() {
 var f;
 f = {};
 f = function () { };
+// 联合类型，表示取值可以为多种类型中的一种
+// 定义一个函数得到一个数值火字符串值的字符串形式值
+function getString(str) {
+    return str.toString();
+}
+console.log(getString("123"));
 // {} 用来指定对象中可以包含哪些属性
 // 语法： {属性名：属性值，属性名：属性值}
 // 在属性后加？，表示属性是可选的
@@ -70,7 +78,7 @@ k = function (n1, n2) {
 /**
  * 数组类型申明
  *  类型[]
- *  Arrsy<>
+ *  Array<>  泛型的写法
 */
 // string[] 表示字符串数组
 var m;
@@ -88,6 +96,8 @@ var p;
 p = ['hello', 123];
 /**
  * enum 枚举
+ *  枚举里面的每个数据值都可以叫元素，每个元素都有自己的编号，默认编号是从0开始的，一次的递增加1
+ *  枚举中的元素可以是中文的数据值，但是不推荐
 */
 var Gender;
 (function (Gender) {
@@ -97,3 +107,9 @@ var Gender;
 var q;
 q = { name: 'lily', gender: Gender.Female };
 console.log(q.gender === Gender.Female);
+console.log(Gender[0]); // Female
+// & 表示同时
+var r;
+r = { name: '123', age: 19 };
+var t;
+t = 2;
