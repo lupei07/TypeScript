@@ -1,7 +1,7 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-01 17:42:11
- * @LastEditTime: 2021-07-14 16:22:03
+ * @LastEditTime: 2022-02-17 16:20:03
  * @FilePath: \TypeScript\README.md
  * @Description: 
 -->
@@ -1403,3 +1403,15 @@
         }
     ```
 
+
+## 续写
+### 类型别名
+```ts
+    type Point = {
+        x: number;
+        y: number;
+    }
+    function printCoord(pt: Point){
+        
+    }
+```
