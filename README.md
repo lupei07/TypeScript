@@ -1,7 +1,7 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-01 17:42:11
- * @LastEditTime: 2022-02-17 16:20:03
+ * @LastEditTime: 2022-02-17 16:46:02
  * @FilePath: \TypeScript\README.md
  * @Description: 
 -->
@@ -1414,4 +1414,23 @@
     function printCoord(pt: Point){
         
     }
+```
+- 正常情况下，类型别名和接口可以自由选择
+- 类型别名和接口的差别
+```ts
+    // 扩展
+    type Animal = {
+        name: string
+    }  
+    type Bear = Animal & {
+        honey: boolean
+    }
+    const bear : Bear {
+        name: 'winnie',
+        honey: true
+    }
+    
+    // 添加字段
+    // interface 可以命名重复 同名的接口字段会累计
+    // type 不可以重复命名
 ```
