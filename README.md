@@ -1,7 +1,7 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-01 17:42:11
- * @LastEditTime: 2022-02-17 16:46:02
+ * @LastEditTime: 2022-02-18 14:21:06
  * @FilePath: \TypeScript\README.md
  * @Description: 
 -->
@@ -1434,3 +1434,56 @@
     // interface 可以命名重复 同名的接口字段会累计
     // type 不可以重复命名
 ```
+### 文字类型
+```ts
+    let x: 'hello' = 'hello';
+    function printText(s: string, alignment: 'left' | 'right' | 'center');
+    // 此时alignment只能传左右中的其中一个
+    printText('hello', 'left');
+
+    function compare(a: string, b:string): -1 | 0 | 1{
+        return a == b ? 0 : a > b ? 1 : -1
+    }
+
+    interface Options {
+        width: number
+    }
+    function configure(x: Options | 'auto'){
+
+    }
+    configure({ width: 100 });
+    configure( 'auto' );
+
+    let b1: true = true;
+    let b2: false = false;
+
+    // 文字推理
+    const obj = { count： 0 }
+    if(true){
+        obj.count = 1
+    }
+
+    function handleRequest(url: string, method: 'GET' | 'POST' | 'GUESS'){
+
+    }
+    const req = {
+        url: 'https://example.com',
+        method: 'GET'
+    } as const
+    handleRequest(req.url, req.method) // 报错：类型string的参数不能赋值给类型GET | POST | GUESS 的参数
+    
+    // 解决方法三种
+    handleRequest(req.url, req.method as 'GET')
+    const req = {
+        url: 'https://example.com',
+        method: 'GET' as 'GET'
+    }
+    const req = {
+        url: 'https://example.com',
+        method: 'GET'
+    } as const
+
+
+```
+- TS 3.4中引入as const，被称为const 断言，它的作用是让里头的所有东西变成只读
+- as const断言，可以将代码中宽泛的数据类型定义具体话，从而避免我们在开发过程中，因为定义过于宽泛，造成的各种数据处理的错误，通过精准的数据类型定义，更好的管理我们前端代码
