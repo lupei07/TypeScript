@@ -1,7 +1,7 @@
 <!--
  * @Author: lu
  * @Date: 2021-07-01 17:42:11
- * @LastEditTime: 2022-02-18 14:21:06
+ * @LastEditTime: 2022-02-18 17:47:50
  * @FilePath: \TypeScript\README.md
  * @Description: 
 -->
@@ -1487,3 +1487,58 @@
 ```
 - TS 3.4中引入as const，被称为const 断言，它的作用是让里头的所有东西变成只读
 - as const断言，可以将代码中宽泛的数据类型定义具体话，从而避免我们在开发过程中，因为定义过于宽泛，造成的各种数据处理的错误，通过精准的数据类型定义，更好的管理我们前端代码
+
+### 不太常用的原语（bigint：非常大的整数 symbol：全局唯一引用）
+```ts
+    const oneHundred: bigint = BigInt(100);
+    const anotherHundred: bigint = 100n;
+
+    const firstName = Symbol('name')
+    const secondName = Symbol('name')
+    // firstName 和 secondName 不相等
+```
+### 类型缩小
+#### typeof 类型守卫
+```ts
+    function printAll(strs: string | string[] | null){
+        if(typeof strs === 'object'){ // 此时null属于object类型
+            for(const s of strs){ 
+                console.log(s)
+            }
+        }else if(typeof strs === 'string'){
+            console.log(strs)
+        }else{
+            // ...
+        }
+    }
+```
+#### 真值缩小 （条件 && || if语句 布尔否定!）
+```ts
+    function getUserOnlineMessage(numUsersOnline: number){
+        // 0 NaN '' 0n null undefined 都会自动转换为false
+        if(numUsersOnline){
+            return `现在共有${numUsersOnline}人在线`
+        }else{
+            return '现在没有人在线'
+        }
+    }
+
+    Boolean('true'); 
+    !!"world";
+```
+#### 等值缩小 （=== !== == !=）
+#### in操作符缩小
+```ts
+    type Fish = { swin: () => void }
+    type Bird = { fly: () => void }
+    type Human = { swim?: () => void, fly?: () => void }
+
+    function move(animal: Fish | Bird | Human){
+        if('swin' in animal){
+            // Human 可能没有wsin
+            return (animal as Fish).swim();
+        }
+    }
+```
+#### instanceof操作符缩小
+- `X instanceof Foo` X原型链上是否含有 Foo.prototype
